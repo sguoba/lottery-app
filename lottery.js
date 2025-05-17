@@ -1,5 +1,5 @@
 const contractAddress = "0xE8ef72f2121eF22a60Fc141deB9E96F3F40d351e"; // Replace this
-const abi = [ [
+const abi = [ 
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -149,18 +149,37 @@ const abi = [ [
 		"stateMutability": "payable",
 		"type": "receive"
 	}
-] ];
+] ;
 
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const signer = provider.getSigner();
-const contract = new ethers.Contract(contractAddress, abi, signer);
+let provider;
+let signer;
+let contract;
+
+// Wait until the window and scripts are fully loaded
+window.onload = async () => {
+  if (typeof window.ethereum === "undefined") {
+    document.getElementById("status").innerText = "⚠️ MetaMask is not installed!";
+    return;
+  }
+
+  await window.ethereum.request({ method: "eth_requestAccounts" });
+
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  signer = provider.getSigner();
+  contract = new ethers.Contract(contractAddress, abi, signer);
+
+  updateUI(); // initialize the display
+};
 
 async function enterLottery() {
-  await provider.send("eth_requestAccounts", []);
-  const tx = await contract.enter({ value: ethers.utils.parseEther("0.01") });
-  await tx.wait();
-  document.getElementById("status").innerText = "🎉 You have entered the lottery!";
-  updateUI();
+  try {
+    const tx = await contract.enter({ value: ethers.utils.parseEther("0.01") });
+    await tx.wait();
+    document.getElementById("status").innerText = "🎉 You have entered the lottery!";
+    updateUI();
+  } catch (err) {
+    document.getElementById("status").innerText = "⚠️ Error: " + err.message;
+  }
 }
 
 async function pickWinner() {
@@ -176,13 +195,12 @@ async function pickWinner() {
 
 async function updateUI() {
   try {
-    const players = await contract.getPlayers();
+    const count = await contract.getPlayersCount();
     const winner = await contract.recentWinner();
-    document.getElementById("players").innerText = players.join(", ");
+
+    document.getElementById("players").innerText = `${count} player(s)`;
     document.getElementById("winner").innerText = winner;
   } catch (err) {
-    document.getElementById("status").innerText = "Error fetching data.";
+    document.getElementById("status").innerText = "⚠️ Error fetching data.";
   }
 }
-
-window.onload = updateUI;
