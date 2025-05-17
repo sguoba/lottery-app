@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Decentralized Lottery DApp</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Decentralized Lottery</h1>
+
+  <div id="content">
+    <button onclick="enterLottery()">🎟️ Enter (0.01 ETH)</button>
+    <button onclick="pickWinner()">🏆 Pick Winner (owner only)</button>
+
+    <p><strong>Status:</strong> <span id="status">Waiting for interaction...</span></p>
+    <p><strong>Players:</strong> <span id="players">Loading...</span></p>
+    <p><strong>Recent Winner:</strong> <span id="winner">Loading...</span></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <script src="lottery.js"></script>
+</body>
+</html>
